@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Whisk Ai Automator - Stop Klik Manual, Mulai Otomatisasi</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary': '#FFD400',
+                        'primary-dark': '#E5BC00',
+                        'bg-dark': '#0A0A0A',
+                        'bg-card': '#141414',
+                        'bg-elevated': '#1A1A1A',
+                        'text-primary': '#FFFFFF',
+                        'text-muted': '#A3A3A3',
+                        'accent': '#00D4AA',
+                        'danger': '#FF4757',
+                    },
+                    fontFamily: {
+                        'display': ['Space Grotesk', 'sans-serif'],
+                        'body': ['DM Sans', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background-color: #0A0A0A;
+            color: #FFFFFF;
+            overflow-x: hidden;
+        }
+        
+        .font-display {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+        
+        .bg-grid {
+            background-image: 
+                linear-gradient(rgba(255, 212, 0, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 212, 0, 0.03) 1px, transparent 1px);
+            background-size: 60px 60px;
+            animation: gridMove 20s linear infinite;
+        }
+        
+        @keyframes gridMove {
+            0% { background-position: 0 0; }
+            100% { background-position: 60px 60px; }
+        }
+        
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.4;
+            animation: float 8s ease-in-out infinite;
+            pointer-events: none;
+        }
+        
+        .orb-1 { width: 400px; height: 400px; background: #FFD400; top: -100px; right: -100px; }
+        .orb-2 { width: 300px; height: 300px; background: #00D4AA; bottom: 20%; left: -150px; }
+        
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(30px, -30px) scale(1.1); }
+        }
+        
+        .reveal {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .reveal-delay-1 { transition-delay: 0.1s; }
+        .reveal-delay-2 { transition-delay: 0.2s; }
+        
+        .pulse-ring {
+            animation: pulse-ring 2s cubic-bezier(0.455, 0.03, 0.515, 0.955) infinite;
+        }
+        
+        @keyframes pulse-ring {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.8; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        .marquee {
+            animation: marquee 30s linear infinite;
+        }
+        
+        @keyframes marquee {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #FFD400 0%, #E5BC00 100%);
+            color: #0A0A0A !important;
+            font-weight: 700;
+            text-decoration: none !important;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 20px rgba(255, 212, 0, 0.3);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(255, 212, 0, 0.5);
+        }
+        
+        .sticky-cta {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
+            background: #141414;
+            border-top: 1px solid rgba(255, 212, 0, 0.1);
+        }
+        
+        .sticky-cta.visible { transform: translateY(0); }
+        
+        .faq-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease;
+        }
+        
+        .faq-item.active .faq-content { max-height: 500px; }
+        .faq-item.active .faq-icon { transform: rotate(180deg); }
+        
+        /* Coretan harga mengikuti teks */
+        .price-strike { 
+            position: relative;
+            display: inline-block;
+        }
+        .price-strike::after {
+            content: '';
+            position: absolute;
+            left: -2px; 
+            right: -2px; 
+            top: 50%;
+            height: 2px; 
+            background: #FF4757;
+            transform: rotate(-8deg);
+            border-radius: 4px;
+        }
+        
+        .noise-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; opacity: 0.03; z-index: 1000;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+        }
+
+        /* Pricing Card Gradient Glow */
+        .card-glow {
+            box-shadow: 0 0 40px rgba(255, 212, 0, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-bg-dark">
+    <div class="noise-overlay"></div>
+    
+    <!-- Hero Section -->
+    <section class="relative min-h-screen overflow-hidden bg-grid">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        
+        <div class="w-full py-12 px-4 relative z-10">
+            <div class="reveal text-center mb-8">
+                <span class="inline-flex items-center gap-2 bg-bg-elevated border border-primary/30 rounded-full px-4 py-2 text-sm">
+                    <span class="w-2 h-2 bg-accent rounded-full animate-pulse"></span>
+                    <span class="text-text-muted">Solusi untuk Microstocker Indonesia</span>
+                </span>
+            </div>
+            
+            <div class="text-center max-w-4xl mx-auto">
+                <h1 class="reveal reveal-delay-1 font-display text-4xl md:text-6xl lg:text-7xl font-bold leading-tight mb-6">
+                    <span class="text-primary">Generate Ribuan</span><br>
+                    <span class="text-text-primary">Dengan Sekali Klik</span>
+                </h1>
+                
+                <p class="reveal reveal-delay-2 text-lg md:text-xl text-text-muted max-w-2xl mx-auto mb-8">
+                    Berhenti habiskan <span class="text-primary font-semibold">jam-jam</span> cuma buat klik "Generate" dan "Download" manual. Biarkan Whisk Ai Automator kerjakan yang boring, kamu fokus yang menghasilkan.
+                </p>
+                
+                <div class="reveal reveal-delay-2 flex flex-col items-center gap-4">
+                    <a href="#pricing" class="btn-primary pulse-ring px-8 py-4 rounded-xl text-lg font-display inline-flex items-center gap-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                        Download Sekarang - Rp 155.000
+                    </a>
+                    <a href="https://youtu.be/ZQ6ct8LnYAw" target="_blank" class="bg-bg-elevated border border-primary/30 text-text-primary hover:border-primary hover:text-primary px-8 py-3 rounded-xl transition-all inline-flex items-center gap-2 font-display text-base">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                        Tonton Video Penjelasan
+                    </a>
+                </div>
+            </div>
+            
+            <div class="reveal mt-12 max-w-4xl mx-auto">
+                <div class="relative rounded-2xl overflow-hidden border border-primary/20 bg-bg-card">
+                    <img src="https://raw.githubusercontent.com/ekodwilistianto/testimonimember/main/cover%20whisk%20ai.jpg" alt="Whisk Ai Automator Interface" class="w-full opacity-90">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Social Proof Marquee -->
+    <section class="py-8 overflow-hidden border-b border-primary/10">
+        <div class="flex whitespace-nowrap">
+            <div class="marquee flex gap-12 items-center">
+                <span class="text-text-muted flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#00D4AA" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                    500+ Microstocker Aktif
+                </span>
+                <span class="text-primary">|</span>
+                <span class="text-text-muted flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#00D4AA" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                    Lifetime Update Gratis
+                </span>
+                <span class="text-primary">|</span>
+                <span class="text-text-muted flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#00D4AA" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                    Aman untuk Akun Whisk AI
+                </span>
+                <span class="text-primary">|</span>
+                <!-- Loop -->
+                <span class="text-text-muted flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#00D4AA" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                    500+ Microstocker Aktif
+                </span>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Problem Section -->
+    <section class="py-16 px-4 bg-bg-card">
+        <div class="max-w-4xl mx-auto">
+            <div class="reveal text-center mb-12">
+                <h2 class="font-display text-3xl md:text-4xl font-bold uppercase tracking-tight">
+                    Ini Yang Bikin Produktivitasmu <span class="text-danger">MACET</span>
+                </h2>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="reveal bg-bg-elevated p-6 rounded-xl border border-danger/20 hover:border-danger/40 transition-colors">
+                    <h3 class="font-display font-bold text-lg mb-2 text-text-primary">Jari Keriting & Capek</h3>
+                    <p class="text-text-muted leading-relaxed">Klik manual ratusan kali untuk generate & download menguras energi dan sangat membosankan.</p>
+                </div>
+                <div class="reveal bg-bg-elevated p-6 rounded-xl border border-danger/20 hover:border-danger/40 transition-colors">
+                    <h3 class="font-display font-bold text-lg mb-2 text-text-primary">Waktu Terbuang</h3>
+                    <p class="text-text-muted leading-relaxed">Jam-jam berharga habis cuma buat proses teknis yang sebenarnya bisa diotomatisasi dengan mudah.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Solution Section -->
+    <section class="py-16 px-4">
+        <div class="max-w-4xl mx-auto">
+            <div class="reveal text-center mb-12">
+                <h2 class="font-display text-3xl md:text-4xl font-bold">
+                    Whisk Ai Automator, <span class="text-primary">Sekali Klik Beres !</span>
+                </h2>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="reveal flex gap-4 bg-bg-card p-6 rounded-xl border border-primary/20">
+                    <div class="w-10 h-10 bg-primary/20 rounded-lg flex items-center justify-center shrink-0 text-xl">⚡</div>
+                    <div>
+                        <h3 class="font-bold text-text-primary">Auto-Generate Berantai</h3>
+                        <p class="text-sm text-text-muted">Otomatis generate satu per satu tanpa henti sesuai antrian.</p>
+                    </div>
+                </div>
+                <div class="reveal flex gap-4 bg-bg-card p-6 rounded-xl border border-primary/20">
+                    <div class="w-10 h-10 bg-primary/20 rounded-lg flex items-center justify-center shrink-0 text-xl">📥</div>
+                    <div>
+                        <h3 class="font-bold text-text-primary">Auto-Download Smart</h3>
+                        <p class="text-sm text-text-muted">Selesai generate langsung tersimpan rapi ke folder tujuan.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Timeline Section -->
+    <section class="py-16 px-4 bg-bg-card">
+        <div class="max-w-4xl mx-auto">
+            <h2 class="text-center font-display text-2xl md:text-3xl font-bold mb-12">Workflow Setelah Pakai Automator</h2>
+            <div class="space-y-8 relative">
+                <div class="absolute left-4 top-0 bottom-0 w-px bg-primary/20"></div>
+                <div class="reveal flex gap-6 relative">
+                    <div class="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-bg-dark font-bold shrink-0 z-10 shadow-[0_0_15px_rgba(255,212,0,0.4)]">1</div>
+                    <p class="text-text-muted pt-1"><span class="text-text-primary font-bold">Setup Prompt:</span> Tulis prompt & tentukan jumlah generate yang diinginkan.</p>
+                </div>
+                <div class="reveal flex gap-6 relative">
+                    <div class="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-bg-dark font-bold shrink-0 z-10 shadow-[0_0_15px_rgba(255,212,0,0.4)]">2</div>
+                    <p class="text-text-muted pt-1"><span class="text-text-primary font-bold">Start:</span> Klik tombol Start & biarkan tool bekerja otomatis di background.</p>
+                </div>
+                <div class="reveal flex gap-6 relative">
+                    <div class="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-bg-dark font-bold shrink-0 z-10 shadow-[0_0_15px_rgba(255,212,0,0.4)]">3</div>
+                    <p class="text-text-muted pt-1"><span class="text-text-primary font-bold">Santai:</span> Tinggalkan PC Anda atau kerjakan hal lain selagi aset Anda menumpuk.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Objection / FAQ -->
+    <section class="py-16 px-4">
+        <div class="max-w-4xl mx-auto">
+            <h2 class="text-center font-display text-2xl font-bold mb-8">Pertanyaan yang Sering Muncul</h2>
+            <div class="faq-item bg-bg-elevated rounded-xl border border-primary/10 overflow-hidden mb-4 group cursor-pointer">
+                <button class="faq-toggle w-full p-5 flex items-center justify-between text-left">
+                    <span class="font-bold text-text-primary group-hover:text-primary transition-colors">Aman nggak buat akun Whisk AI saya?</span>
+                    <span class="faq-icon transition-transform text-primary text-xs">▼</span>
+                </button>
+                <div class="faq-content px-5 pb-5 text-text-muted text-sm leading-relaxed">
+                    Sangat aman. Tool ini bekerja di level browser, mensimulasikan klik manusia dengan delay natural. Bukan bot injection atau API hacking yang berisiko banned.
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Important Notes Section -->
+    <section class="py-12 px-4">
+        <div class="max-w-4xl mx-auto">
+            <div class="reveal bg-danger/5 border border-danger/20 rounded-2xl p-8">
+                <h2 class="font-display font-bold text-2xl text-text-primary mb-6 flex items-center gap-3">⚠️ Catatan Penting</h2>
+                <ul class="space-y-4">
+                    <li class="flex gap-4"><span>🧩</span> <p class="font-medium text-text-primary">Running Di PC ( Google Chrome Extention )</p></li>
+                    <li class="flex gap-4"><span>🧩</span> <p class="text-text-muted leading-relaxed"><span class="font-medium text-text-primary">Akan Terus Diupdate</span> (Namun Ketika Ada TOS yang berubah dari pihak Whisk Ai & kita gak dikasi akses, Maka tools ini bisa jadi non-aktif)</p></li>
+                    <li class="flex gap-4"><span>🧩</span> <p class="font-medium text-text-primary">Tidak Ada Garansi Uang Kembali.</p></li>
+                </ul>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Pricing Section (Updated to reference styles) -->
+    <section id="pricing" class="py-20 px-4 bg-bg-dark relative overflow-hidden">
+        <div class="max-w-4xl mx-auto relative z-10">
+            <div class="reveal text-center mb-12">
+                <p class="text-primary font-display font-bold text-sm tracking-widest uppercase mb-3">Penawaran Terbatas</p>
+                <h2 class="font-display text-3xl md:text-5xl font-bold text-white mb-8">INVESTASI UNTUK MASA DEPAN MICROSTOCKMU</h2>
+                
+                <!-- Dummy Countdown (Auto Reset) -->
+                <div class="inline-block bg-bg-card border border-primary/20 rounded-2xl px-10 py-6 card-glow">
+                    <p class="text-text-muted font-display font-bold text-xs mb-4 uppercase tracking-widest">Harga Promo Berakhir Dalam:</p>
+                    <div class="flex justify-center items-center gap-4" id="countdown">
+                        <div class="text-center">
+                            <div class="bg-bg-dark border border-primary/10 rounded-xl w-14 h-14 flex items-center justify-center font-display font-bold text-2xl text-primary" id="hours">23</div>
+                            <p class="text-[10px] text-text-muted mt-2 uppercase font-bold">Jam</p>
+                        </div>
+                        <span class="text-primary font-bold text-2xl pb-6">:</span>
+                        <div class="text-center">
+                            <div class="bg-bg-dark border border-primary/10 rounded-xl w-14 h-14 flex items-center justify-center font-display font-bold text-2xl text-primary" id="minutes">59</div>
+                            <p class="text-[10px] text-text-muted mt-2 uppercase font-bold">Menit</p>
+                        </div>
+                        <span class="text-primary font-bold text-2xl pb-6">:</span>
+                        <div class="text-center">
+                            <div class="bg-bg-dark border border-primary/10 rounded-xl w-14 h-14 flex items-center justify-center font-display font-bold text-2xl text-primary" id="seconds">42</div>
+                            <p class="text-[10px] text-text-muted mt-2 uppercase font-bold">Detik</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Pricing Card (Reference Style) -->
+            <div class="reveal bg-bg-card rounded-3xl border border-primary/20 overflow-hidden card-glow">
+                <div class="bg-primary py-3 text-center">
+                    <span class="font-display font-bold text-bg-dark text-sm tracking-widest uppercase">Promo Terbatas</span>
+                </div>
+                
+                <div class="p-10 text-center">
+                    <p class="text-text-muted text-xs uppercase tracking-widest mb-2 font-bold opacity-60">Harga Normal</p>
+                    <div class="mb-6">
+                        <span class="price-strike text-text-muted text-2xl font-bold opacity-50">Rp 355.000</span>
+                    </div>
+                    
+                    <p class="text-primary font-display font-bold text-sm tracking-widest uppercase mb-2">Harga Hari Ini</p>
+                    <div class="font-display font-bold text-6xl md:text-7xl text-white mb-2">Rp 155.000</div>
+                    <p class="text-accent text-sm italic font-bold mb-10 underline decoration-accent/30">Hemat Rp 200.000 (56%)</p>
+                    
+                    <a href="https://ekodwilistianto.com/ekodwi.id/q04xml5yd7xw/checkout?token=cGFyYW1zPSU1QiU1RCZiaWRfcHJpY2U9MCZxdHlfcHJvZD0x" target="_blank" class="btn-primary w-full py-5 rounded-2xl text-xl font-display inline-flex items-center justify-center gap-3 shadow-[0_10px_30px_rgba(255,212,0,0.3)] hover:shadow-[0_15px_40px_rgba(255,212,0,0.4)] transition-all">
+                        BELI SEKARANG
+                    </a>
+                    
+                    <div class="flex justify-center gap-8 mt-10">
+                        <div class="flex items-center gap-2 text-text-muted text-xs font-bold uppercase tracking-widest">
+                            <svg class="w-4 h-4 text-primary" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"></path></svg>
+                            Pembayaran Aman
+                        </div>
+                        <div class="flex items-center gap-2 text-text-muted text-xs font-bold uppercase tracking-widest">
+                            <svg class="w-4 h-4 text-primary" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"></path></svg>
+                            Akses Instan
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <p class="text-center text-text-muted text-[10px] mt-10 uppercase tracking-[0.2em] font-bold opacity-40">
+                TRANSAKSI DIPROSES MELALUI LYNK.ID YANG TERPERCAYA DAN AMAN.
+            </p>
+        </div>
+    </section>
+
+    <footer class="py-12 text-center border-t border-primary/5 opacity-30 text-xs tracking-widest font-bold">
+        &copy; 2025 WHISK AI AUTOMATOR. ALL RIGHTS RESERVED.
+    </footer>
+
+    <!-- Sticky Mobile CTA (Reference Style) -->
+    <div class="sticky-cta md:hidden p-5 shadow-[0_-10px_30px_rgba(0,0,0,0.5)]">
+        <div class="flex items-center justify-between gap-4">
+            <div class="flex flex-col">
+                <div class="price-strike text-text-muted text-[10px] opacity-60 font-bold mb-0.5">Rp 355.000</div>
+                <span class="font-display font-bold text-text-primary text-xl leading-none">Rp 155.000</span>
+            </div>
+            <a href="https://ekodwilistianto.com/ekodwi.id/q04xml5yd7xw/checkout?token=cGFyYW1zPSU1QiU1RCZiaWRfcHJpY2U9MCZxdHlfcHJvZD0x" target="_blank" class="btn-primary px-6 py-3.5 rounded-xl font-display text-sm whitespace-nowrap uppercase tracking-wider">
+                Beli Sekarang
+            </a>
+        </div>
+    </div>
+    
+    <script>
+        // Intersection Observer for Reveal
+        const revealElements = document.querySelectorAll('.reveal');
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) entry.target.classList.add('active');
+            });
+        }, { threshold: 0.1 });
+        revealElements.forEach(el => revealObserver.observe(el));
+        
+        // FAQ toggle
+        document.querySelectorAll('.faq-toggle').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const item = btn.parentElement;
+                const isActive = item.classList.contains('active');
+                document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('active'));
+                if(!isActive) item.classList.add('active');
+            });
+        });
+        
+        // Sticky CTA Scroll Visibility
+        window.addEventListener('scroll', () => {
+            const sticky = document.querySelector('.sticky-cta');
+            if (window.scrollY > 500) sticky.classList.add('visible');
+            else sticky.classList.remove('visible');
+        }, { passive: true });
+        
+        // --- Dummy Countdown Logic (Continuous Reset) ---
+        // We set a target time (e.g., 24 hours from "now"). 
+        // If it reaches 0, we just reset it back to 24 hours.
+        let timerDuration = 23 * 3600 + 59 * 60 + 42; // Starts at 23:59:42
+
+        function updateTimer() {
+            if (timerDuration <= 0) {
+                timerDuration = 24 * 3600; // Reset to 24 hours
+            }
+
+            const h = Math.floor(timerDuration / 3600);
+            const m = Math.floor((timerDuration % 3600) / 60);
+            const s = timerDuration % 60;
+
+            document.getElementById('hours').textContent = String(h).padStart(2, '0');
+            document.getElementById('minutes').textContent = String(m).padStart(2, '0');
+            document.getElementById('seconds').textContent = String(s).padStart(2, '0');
+
+            timerDuration--;
+        }
+
+        setInterval(updateTimer, 1000);
+        updateTimer();
+
+        // Smooth scroll fix for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                const targetId = this.getAttribute('href');
+                if(targetId.startsWith('#')) {
+                    e.preventDefault();
+                    document.querySelector(targetId).scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
